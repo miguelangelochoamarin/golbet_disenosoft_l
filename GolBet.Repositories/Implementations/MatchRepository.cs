@@ -43,7 +43,6 @@ public class MatchRepository : GenericRepository<Match>, IMatchRepository
 
 
         if (status.HasValue)
-
             query = query.Where(m => m.Status == status.Value);
 
 
