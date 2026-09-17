@@ -28,6 +28,12 @@ public class MappingProfile : Profile
 
         CreateMap<Match, MatchDto>();
 
+        // Map for the detail DTO that extends MatchDto and adds TotalBets
+        CreateMap<Match, MatchDetailDto>()
+            .ForMember(dto => dto.TotalBets, // Destino
+                       options => options.MapFrom(
+                           match => match.Bets.Count));//Origen
+
     }
 
 }
