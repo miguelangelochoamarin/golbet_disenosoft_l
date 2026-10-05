@@ -1,7 +1,7 @@
 ﻿// GolBet.Web/Controllers/MatchesController.cs  (versión completa) 
 
 using GolBet.Entities.Enums;
-
+using GolBet.Services.DTOs;
 using GolBet.Services.Interfaces;
 
 using Microsoft.AspNetCore.Mvc;
