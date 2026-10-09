@@ -1,17 +1,14 @@
 ﻿// GolBet.Web/Controllers/MatchesController.cs  (versión completa) 
 
 using GolBet.Entities.Enums;
+using GolBet.Repositories.Data;
 using GolBet.Services.DTOs;
 using GolBet.Services.Interfaces;
-
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-
-
 namespace GolBet.Web.Controllers;
-
-
 
 public class MatchesController : Controller
 
@@ -58,7 +55,9 @@ public class MatchesController : Controller
         return View(match);
 
     }
+
     // GET /Matches/Create
+    [Authorize(Roles = DbSeeder.AdminRole)]
     public async Task<IActionResult> Create()
     {
         await LoadTeamsAsync();
