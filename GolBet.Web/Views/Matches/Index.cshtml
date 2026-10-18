@@ -13,15 +13,21 @@
 
 @* seccion de busqueda por nombre de equipo: GET deja la busqueda en la URL (/Matches?search=nacional) *@
 <form asp-action="Index" method="get" class="d-flex gap-2 mb-3">
+
+    @if (current is not null)
+    {
+        <input type="hidden" name="status" value="@current"/>
+    }
+
     <input type="text" name="search" value="@search" class="form-control"
-           placeholder="Digite un nombre de equipo" />
+           placeholder="Digite un nombre de equipo"/>
     <button type="submit" class="btn btn-success">Buscar</button>
 </form>
 
 @* los filtros de estado conservan la busqueda activa (asp-route-search) *@
 <div class="d-flex gap-2 flex-wrap mb-4">
 
-    <a asp-action="Index"
+    <a asp-action="Index" asp-route-search="@search"
        class="btn btn-sm @(current is null ? "btn-success" : "btn-outline-success")">
         Todos
     </a>
@@ -43,14 +49,14 @@
 
 </div>
 
-  
+
 <!-- Matches/Index.cshtml: envolver el h2 en un d-flex (como en Teams) y agregar
 (En otras palabras, es reemplazar el h2 por el siguiente bloque de cod-->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>⚽ Cartelera de partidos</h2>
-    @if (User.IsInRole("Admin")) 
-    { 
-        <a asp-action="Create" class="btn btn-success">+ Nuevo partido</a> 
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-success">+ Nuevo partido</a>
     }
 </div>
 
@@ -76,7 +82,6 @@
     @foreach (var match in Model)
 
     {
-
         <div class="col">
 
             <div class="card h-100 shadow-sm">
@@ -100,7 +105,6 @@
                         case MatchStatus.Finished:
                             <span class="badge bg-secondary">Finalizado</span>
                             break;
-
                     }
 
                 </div>
@@ -109,7 +113,7 @@
                     <div class="d-flex justify-content-between align-items-center text-center">
                         <div class="w-100">
                             <img src="@(match.HomeTeamCrestUrl ?? "https://placehold.co/60x60/e9ecef/6c757d?text=FC")"
-                                 alt="@match.HomeTeamName" width="60" height="60" class="mb-1" />
+                                 alt="@match.HomeTeamName" width="60" height="60" class="mb-1"/>
 
                             <div class="fw-bold small">@match.HomeTeamName</div>
                         </div>
@@ -125,12 +129,11 @@
                             }
                         </div>
 
-  
 
                         <div class="w-100">
 
                             <img src="@(match.AwayTeamCrestUrl ?? "https://placehold.co/60x60?text=⚽")"
-                                 alt="@match.AwayTeamName" width="60" height="60" class="mb-1" />
+                                 alt="@match.AwayTeamName" width="60" height="60" class="mb-1"/>
 
                             <div class="fw-bold small">@match.AwayTeamName</div>
 
