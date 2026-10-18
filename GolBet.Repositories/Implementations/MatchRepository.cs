@@ -9,7 +9,7 @@ namespace GolBet.Repositories.Implementations;
 public class MatchRepository : GenericRepository<Match>, IMatchRepository
 {
     public MatchRepository(AppDbContext context) : base(context) { }
-    public async Task<IEnumerable<Match>> GetAllWithTeamsAsync(MatchStatus? status = null)
+    public async Task<IEnumerable<Match>> GetAllWithTeamsAsync(MatchStatus? status = null, string? search = null)
     {
         var query = _dbSet
             .Include(m => m.HomeTeam)// Include equivale a a un JOIN en SQL, lo que permite cargar los datos relacionados de la entidad HomeTeam junto con la entidad Match.
@@ -20,6 +20,15 @@ public class MatchRepository : GenericRepository<Match>, IMatchRepository
 
         if (status.HasValue)
             query = query.Where(m => m.Status == status.Value);
+
+        // Búsqueda por nombre de equipo (local o visitante); se traduce a LIKE en SQL, sin filtrar en memoria
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLower();
+            query = query.Where(m => m.HomeTeam.Name.ToLower().Contains(term)
+                                  || m.AwayTeam.Name.ToLower().Contains(term));
+        }
+
         return await query.OrderBy(m => m.Date).ToListAsync();
 
     }
