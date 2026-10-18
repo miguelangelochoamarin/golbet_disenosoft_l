@@ -8,8 +8,17 @@
 }
 @{
     var current = (MatchStatus?)ViewBag.CurrentStatus;
+    var search = (string?)ViewBag.CurrentSearch;
 }
 
+@* seccion de busqueda por nombre de equipo: GET deja la busqueda en la URL (/Matches?search=nacional) *@
+<form asp-action="Index" method="get" class="d-flex gap-2 mb-3">
+    <input type="text" name="search" value="@search" class="form-control"
+           placeholder="Digite un nombre de equipo" />
+    <button type="submit" class="btn btn-success">Buscar</button>
+</form>
+
+@* los filtros de estado conservan la busqueda activa (asp-route-search) *@
 <div class="d-flex gap-2 flex-wrap mb-4">
 
     <a asp-action="Index"
@@ -17,17 +26,17 @@
         Todos
     </a>
 
-    <a asp-action="Index" asp-route-status="@MatchStatus.Scheduled"
+    <a asp-action="Index" asp-route-status="@MatchStatus.Scheduled" asp-route-search="@search"
        class="btn btn-sm @(current == MatchStatus.Scheduled ? "btn-success" : "btn-outline-success")">
         Programados
     </a>
 
-    <a asp-action="Index" asp-route-status="@MatchStatus.InProgress"
+    <a asp-action="Index" asp-route-status="@MatchStatus.InProgress" asp-route-search="@search"
        class="btn btn-sm @(current == MatchStatus.InProgress ? "btn-success" : "btn-outline-success")">
         En juego
     </a>
 
-    <a asp-action="Index" asp-route-status="@MatchStatus.Finished"
+    <a asp-action="Index" asp-route-status="@MatchStatus.Finished" asp-route-search="@search"
        class="btn btn-sm @(current == MatchStatus.Finished ? "btn-success" : "btn-outline-success")">
         Finalizados
     </a>
@@ -42,8 +51,25 @@
     @if (User.IsInRole("Admin")) 
     { 
         <a asp-action="Create" class="btn btn-success">+ Nuevo partido</a> 
-    } 
+    }
 </div>
+
+@* sin resultados: mensaje amable y enlace a la cartelera completa *@
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <h1 class="display-4">🔍</h1>
+        @if (!string.IsNullOrWhiteSpace(search))
+        {
+            <h4>No hay partidos para “@search”</h4>
+        }
+        else
+        {
+            <h4>No hay partidos para mostrar</h4>
+        }
+        <a asp-action="Index" class="btn btn-success mt-2">Volver a la cartelera de partidos</a>
+    </div>
+}
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
 
