@@ -10,10 +10,7 @@ using GolBet.Repositories.Interfaces;
 
 using Microsoft.EntityFrameworkCore;
 
-
-
 namespace GolBet.Repositories.Implementations;
-
 
 
 public class BetRepository : GenericRepository<Bet>, IBetRepository
@@ -23,13 +20,11 @@ public class BetRepository : GenericRepository<Bet>, IBetRepository
     public BetRepository(AppDbContext context) : base(context) { }
 
 
-
     public async Task<bool> ExistsAsync(int matchId, string userId, BetPick pick)
 
         => await _dbSet.AnyAsync(b =>
 
                b.MatchId == matchId && b.UserId == userId && b.Pick == pick);
-
 
 
     public async Task<IEnumerable<Bet>> GetByUserAsync(string userId)
