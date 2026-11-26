@@ -1,4 +1,4 @@
-using GolBet.Entities;
+﻿using GolBet.Entities;
 using GolBet.Repositories.Data;
 using GolBet.Repositories.Implementations;
 using GolBet.Repositories.Interfaces;
@@ -7,7 +7,7 @@ using GolBet.Services.Interfaces;
 using GolBet.Services.Mapping;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
+using Serilog;
 using System.Globalization;
 
 var culture = new CultureInfo("es-CO");
@@ -18,6 +18,9 @@ culture.NumberFormat.NumberGroupSeparator = ""; //"2,5"fails loudly, never binds
 CultureInfo.DefaultThreadCurrentCulture = culture;
 CultureInfo.DefaultThreadCurrentUICulture = culture;
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, config) =>
+    config.ReadFrom.Configuration(context.Configuration));
 // ...
 
 // Add services to the container.
@@ -54,7 +57,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 
 builder.Services.AddScoped<IMatchRepository, MatchRepository>();
 builder.Services.AddScoped<IBetRepository, BetRepository>();
- 
+
 // AutoMapper: scans the assembly containing MappingProfile for all profiles 
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -67,6 +70,26 @@ builder.Services.AddScoped<IMatchService, MatchService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IBetService, BetService>();
 var app = builder.Build();
+
+// Unhandled exceptions (500): friendly page in production, 
+// full yellow stack trace while developing 
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error/General");
+}
+
+// Status codes without a body (404 and friends): re-execute 
+// the pipeline against our ErrorController 
+
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseSerilogRequestLogging();   // one clean line per request: method, path, status, duration
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+
 // Seed the database on startup AddDbContext 
 
 
@@ -81,26 +104,7 @@ using (var scope = app.Services.CreateScope())
 
 }
 
-
-
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-
 // --- in the pipeline, before app.UseAuthorization() --- 
-app.UseAuthentication();   // who are you?  (reads the cookie, builds User) 
-app.UseAuthorization();    // may you do this?  (evaluates [Authorize]) 
 
 app.MapControllerRoute(
     name: "default",
